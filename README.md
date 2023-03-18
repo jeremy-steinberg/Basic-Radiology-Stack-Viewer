@@ -27,7 +27,7 @@ Zoom in and out of the image using the "Zoom" button. Click and drag the mouse t
 Pan the image using the "Pan" button. Click and drag the mouse to pan the image.
 To reset the image to its original state, click the "Reset" button.
 
-##Customization
+## Customization
 
 You can customize the appearance and functionality of the application by modifying the HTML, CSS, and JavaScript code. For example, you can change the background color of the toolbar or the canvas, or add additional buttons for other image manipulation tasks.
 Contributing
