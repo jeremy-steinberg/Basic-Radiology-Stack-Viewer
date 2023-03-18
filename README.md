@@ -1,4 +1,4 @@
-# Radiology Image Viewer
+# Radiology Stack Scroller
 
 This is a simple web application for viewing a stack of radiology images. The html file is only around 10kb. The application allows the user to scroll through the images using a vertical scrollbar, and provides buttons for adjusting the brightness and contrast, zooming, and panning the images. The application is built using HTML, CSS, and JavaScript, and runs on a Python web server. Creating was assisted by ChatGPT. This was created because I couldn't find any non-DICOM radiology image viewers. The usage case would be for very lightweight applications where a DICOM server isn't required and you just want to scroll through simple radiology pictures.
 
@@ -9,7 +9,7 @@ This is a simple web application for viewing a stack of radiology images. The ht
 - Adjust images using the brightness/contrast, zoom, and pan buttons
 - Switch between different stacks (e.g., Axial, Sagittal) for the stack selector version
 
-##Project Structure
+## Project Structure
 
 ```
 root_directory/
