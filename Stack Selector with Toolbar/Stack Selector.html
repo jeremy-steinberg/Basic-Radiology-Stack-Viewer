@@ -18,12 +18,12 @@
     #scrollbar {
       position: absolute;
       right: 0;
-      top: 10px; /*there is a function that changes it to be correct*/
+      top: 100px; /*there is a function that changes it to be correct*/
       height: 490px;
       -webkit-appearance: none;
       appearance: none;
       width: 20px;
-      background: transparent;
+      background-color: rgba(255,255,255,0.1);
       transform: scaleY(-1);
       writing-mode: bt-lr; /* IE */
       -webkit-appearance: slider-vertical; /* WebKit */
@@ -44,7 +44,7 @@
       height: 25px;
       margin: 0 10px;
       padding: 5px;
-      border-radius: 3px;
+      border: none;
     }
 
     #toolbar img:not(#resetBtn).active, #stack-selector button.active {
@@ -313,13 +313,35 @@
     updateImage(imageFiles.length - parseInt(scrollbar.value));
     }
 
+    
     function updateScrollbarPosition() {
-      const toolbarHeight = document.getElementById('toolbar').offsetHeight;
-      const stackSelectorHeight = document.getElementById('stack-selector').offsetHeight;
+      const toolbar = document.getElementById('toolbar');
+      const stackSelector = document.getElementById('stack-selector');
+      const scrollbar = document.getElementById('scrollbar');
+
+      const toolbarHeight = toolbar.offsetHeight;
+      const stackSelectorHeight = stackSelector.offsetHeight;
 
       const scrollbarTopValue = toolbarHeight + stackSelectorHeight;
       scrollbar.style.top = `${scrollbarTopValue}px`;
     }
+
+    function updateScrollbarHeight() {
+      const imgHeight = document.getElementById('image').clientHeight;
+      const toolbarHeight = document.getElementById('toolbar').offsetHeight;
+      const stackSelectorHeight = document.getElementById('stack-selector').offsetHeight;
+      const scrollbar = document.getElementById('scrollbar');
+      scrollbar.style.height = `${imgHeight - 10}px`;
+    }
+
+    window.addEventListener('load', () => {
+      updateScrollbarHeight();
+      updateScrollbarPosition();
+    });
+    window.addEventListener('resize', () => {
+      updateScrollbarHeight();
+      updateScrollbarPosition();
+    });
 
     window.addEventListener('load', updateScrollbarPosition);
     window.addEventListener('resize', updateScrollbarPosition);
