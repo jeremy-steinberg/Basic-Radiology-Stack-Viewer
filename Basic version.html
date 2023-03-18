@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Viewer</title>
+  <style>
+    #container {
+      position: relative;
+      display: inline-block;
+    }
+    #image {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+    #scrollbar {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      background: transparent;
+      transform: scaleY(1);
+    }
+    #scrollbar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 50px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <img id="image" src="MRI LUMBAR SPINE 0010.jpg">
+    <input id="scrollbar" type="range" min="1" max="10" value="10" orient="vertical">
+  </div>
+  <p id="indicator">Image 10 of 10</p>
+
+  <script>
+    const imageFiles = [
+      'MRI LUMBAR SPINE 0001.jpg',
+      'MRI LUMBAR SPINE 0002.jpg',
+      'MRI LUMBAR SPINE 0003.jpg',
+      'MRI LUMBAR SPINE 0004.jpg',
+      'MRI LUMBAR SPINE 0005.jpg',
+      'MRI LUMBAR SPINE 0006.jpg',
+      'MRI LUMBAR SPINE 0007.jpg',
+      'MRI LUMBAR SPINE 0008.jpg',
+      'MRI LUMBAR SPINE 0009.jpg',
+      'MRI LUMBAR SPINE 0010.jpg',
+    ];
+
+    const image = document.getElementById('image');
+    const scrollbar = document.getElementById('scrollbar');
+    const indicator = document.getElementById('indicator');
+
+    let contrast = 100;
+    let brightness = 100;
+    let mouseDown = false;
+    let start = { x: null, y: null };
+
+    function updateImage(index) {
+      if (index >= 0 && index < imageFiles.length) {
+        image.src = imageFiles[index];
+        scrollbar.value = imageFiles.length - index;
+        indicator.textContent = `Image ${index + 1} of ${imageFiles.length}`;
+      }
+    }
+
+    function updateContrast(value) {
+      contrast = value;
+      image.style.filter = `contrast(${contrast}%) brightness(${brightness}%)`;
+    }
+
+    function updateBrightness(value) {
+      brightness = value;
+      image.style.filter = `contrast(${contrast}%) brightness(${brightness}%)`;
+    }
+
+    function onWheel(event) {
+      event.preventDefault();
+      const index = imageFiles.length - parseInt(scrollbar.value);
+      const newIndex = event.deltaY > 0 ? index + 1 : index - 1;
+      updateImage(newIndex);
+    }
+
+    function onScrollbarChange() {
+      const index = imageFiles.length - parseInt(scrollbar.value);
+      updateImage(index);
+    }
+
+    function onMouseDown(event) {
+      mouseDown = true;
+      start.x = event.clientX;
+      start.y = event.clientY;
+    }
+
+    function onMouseMove(event) {
+      if (mouseDown) {
+        const deltaX = start.x - event.clientX;
+        const deltaY = start.y - event.clientY;
+        const newContrast = contrast + deltaY / 2;
+        const newBrightness = brightness - deltaX / 2;
+        updateContrast(Math.min(Math.max(newContrast, 0), 200));
+        updateBrightness(Math.min(Math.max(newBrightness, 0), 200));
+        start.x = event.clientX;
+        start.y = event.clientY;
+      }
+    }
+
+    function onMouseUp() {
+      mouseDown = false;
+    }
+
+    function onDragStart(event) {
+      event.preventDefault();
+    }
+
+    image.addEventListener('wheel', onWheel);
+    scrollbar.addEventListener('input', onScrollbarChange);
+    image.addEventListener('mousedown', onMouseDown);
+    image.addEventListener('mousemove', onMouseMove);
+    image.addEventListener('mouseup', onMouseUp);
+    image.addEventListener('mouseleave', onMouseUp);
+    image.addEventListener('dragstart', onDragStart);
+  </script>
+</body>
+</html>
+

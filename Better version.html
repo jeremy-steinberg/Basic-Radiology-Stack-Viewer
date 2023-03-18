@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Viewer</title>
+  <style>
+    #container {
+      position: relative;
+      display: inline-block;
+      height: 100%;
+    }
+    #image {
+      display: block;
+      max-width: 100%;
+      background-color: black;
+    }
+    #scrollbar {
+      position: absolute;
+      right: 0;
+      top: 50px;
+      height: 490px;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      background: transparent;
+      transform: scaleY(-1);
+      writing-mode: bt-lr; /* IE */
+      -webkit-appearance: slider-vertical; /* WebKit */
+      appearance: slider-vertical; /* Standard */
+    }
+    #toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    background-color: #d0d0d0;
+    }
+
+    #toolbar img {
+      cursor: pointer;
+      height: 25px;
+      margin: 0 10px;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+      #toolbar img:not(#resetBtn).active {
+      background-color: #2a99ff;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="toolbar">
+      <img id="brightnessContrastBtn" src="contrast-icon.png" alt="Brightness/Contrast">
+      <img id="zoomBtn" src="zoom-icon.png" alt="Zoom">
+      <img id="panBtn" src="pan-icon.png" alt="Pan">
+      <img id="resetBtn" src="reset-icon.png" alt="Reset">
+    </div>
+    <canvas id="image" width="500" height="500"></canvas>
+    <input id="scrollbar" type="range" min="1" max="10" value="1" orient="vertical">
+  </div>
+
+  <script>
+    const imageFiles = [
+      'MRI LUMBAR SPINE 0001.jpg',
+      'MRI LUMBAR SPINE 0002.jpg',
+      'MRI LUMBAR SPINE 0003.jpg',
+      'MRI LUMBAR SPINE 0004.jpg',
+      'MRI LUMBAR SPINE 0005.jpg',
+      'MRI LUMBAR SPINE 0006.jpg',
+      'MRI LUMBAR SPINE 0007.jpg',
+      'MRI LUMBAR SPINE 0008.jpg',
+      'MRI LUMBAR SPINE 0009.jpg',
+      'MRI LUMBAR SPINE 0010.jpg',
+    ];
+
+    const image = document.getElementById('image');
+    const ctx = image.getContext('2d', { willReadFrequently: true });
+    const scrollbar = document.getElementById('scrollbar');
+    const brightnessContrastBtn = document.getElementById('brightnessContrastBtn');
+        brightnessContrastBtn.addEventListener('click', () => {
+      onButtonClick(brightnessContrastBtn);
+    });
+    const zoomBtn = document.getElementById('zoomBtn');
+    zoomBtn.addEventListener('click', () => {
+      onButtonClick(zoomBtn);
+    });
+    const panBtn = document.getElementById('panBtn');
+    panBtn.addEventListener('click', () => {
+      onButtonClick(panBtn);
+    });
+    const resetBtn = document.getElementById('resetBtn');
+    resetBtn.addEventListener('click', () => {
+      onButtonClick(resetBtn);
+    });
+
+    let contrast = 100;
+    let brightness = 100;
+    let zoom = 1;
+    let panOffset = { x: 0, y: 0 };
+    let mouseDown = false;
+    let start = { x: null, y: null };
+    let activeFunction = 'brightnessContrast';
+
+    function onButtonClick(button) {
+        // Remove the "active" class from all buttons
+        const buttons = document.querySelectorAll('#toolbar img');
+        buttons.forEach((btn) => {
+          btn.classList.remove('active');
+        });
+
+        // Add the "active" class to the clicked button
+        button.classList.add('active');
+      }
+
+    function applyFilters(ctx) {
+      const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = Math.min(Math.max((data[i] - 128) * contrast / 100 + 128, 0) * brightness / 100, 255);
+        data[i + 1] = Math.min(Math.max((data[i + 1] - 128) * contrast / 100 + 128, 0) * brightness / 100, 255);
+        data[i + 2] = Math.min(Math.max((data[i + 2] - 128) * contrast / 100 + 128, 0) * brightness / 100, 255);
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    function updateImage(index) {
+  if (index >= 0 && index < imageFiles.length) {
+    const img = new Image();
+    img.src = imageFiles[index];
+    img.onload = () => {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+      const scaledWidth = ctx.canvas.width / zoom;
+      const scaledHeight = ctx.canvas.height / zoom;
+      const offsetX = (ctx.canvas.width - scaledWidth) / 2 + panOffset.x;
+      const offsetY = (ctx.canvas.height - scaledHeight) / 2 + panOffset.y;
+      ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+      ctx.restore();
+      drawIndicator(ctx, index, imageFiles.length);
+      applyFilters(ctx);
+    };
+    scrollbar.value = imageFiles.length - index;
+  }
+}
+
+
+
+    function drawIndicator(ctx, index, total) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillRect(0, ctx.canvas.height - 30, 150, 30);
+      ctx.font = '18px Arial';
+      ctx.fillStyle = 'black';
+      ctx.fillText(`Image ${index + 1} of ${total}`, 10, ctx.canvas.height - 10);
+    }
+
+    function onWheel(event) {
+        event.preventDefault();
+        const index = imageFiles.length - scrollbar.value;
+        const newIndex = event.deltaY > 0 ? index + 1 : index - 1;
+        updateImage(newIndex);
+    }
+    image.addEventListener('wheel', onWheel);
+
+    function onMouseDown(event) {
+      mouseDown = true;
+      start.x = event.clientX;
+      start.y = event.clientY;
+    }
+
+    function onMouseMove(event) {
+    if (mouseDown) {
+      const deltaX = start.x - event.clientX;
+      const deltaY = start.y - event.clientY;
+      if (activeFunction === 'brightnessContrast') {
+        const newContrast = contrast + deltaY / 2;
+        const newBrightness = brightness - deltaX / 2;
+        updateContrast(Math.min(Math.max(newContrast, 0), 200));
+        updateBrightness(Math.min(Math.max(newBrightness, 0), 200));
+      } else if (activeFunction === 'zoom') {
+        let newZoom = zoom - deltaY / 100;
+        newZoom = Math.min(Math.max(newZoom, 0.2), 5);
+        updateZoom(newZoom);
+        start.y = event.clientY;
+      } else if (activeFunction === 'pan') {
+        panOffset.x -= deltaX;
+        panOffset.y -= deltaY;
+        updateImage(imageFiles.length - parseInt(scrollbar.value));
+      }
+      start.x = event.clientX;
+      start.y = event.clientY;
+    }
+}
+
+
+
+    function onMouseUp() {
+      mouseDown = false;
+    }
+
+    function onDragStart(event) {
+      event.preventDefault();
+    }
+
+    function onScrollbarChange() {
+      const index = imageFiles.length - parseInt(scrollbar.value);
+      updateImage(index);
+    }
+
+    function onBrightnessContrastBtnClick() {
+    activeFunction = 'brightnessContrast';
+    image.style.cursor = 'crosshair';
+    }
+
+    function onZoomBtnClick() {
+    activeFunction = 'zoom';
+    image.style.cursor = 'zoom-in';
+    }
+
+    function onPanBtnClick() {
+      activeFunction = 'pan';
+      image.style.cursor = 'grab';
+    }
+
+    function onResetBtnClick() {
+      contrast = 100;
+      brightness = 100;
+      zoom = 1;
+      panOffset = { x: 0, y: 0 };
+      focalPoint = { x: null, y: null };
+      updateImage(imageFiles.length - parseInt(scrollbar.value));
+    }
+
+    image.addEventListener('mousedown', onMouseDown);
+    image.addEventListener('mousemove', onMouseMove);
+    image.addEventListener('mouseup', onMouseUp);
+    image.addEventListener('mouseleave', onMouseUp);
+    image.addEventListener('dragstart', onDragStart);
+    resetBtn.addEventListener('click', onResetBtnClick);
+    scrollbar.addEventListener('input', onScrollbarChange);
+    brightnessContrastBtn.addEventListener('click', onBrightnessContrastBtnClick);
+    zoomBtn.addEventListener('click', onZoomBtnClick);
+    panBtn.addEventListener('click', onPanBtnClick);
+
+    function updateContrast(value) {
+      contrast = value;
+      updateImage(imageFiles.length - parseInt(scrollbar.value));
+    }
+
+    function updateBrightness(value) {
+      brightness = value;
+      updateImage(imageFiles.length - parseInt(scrollbar.value));
+    }
+
+    function updateZoom(value) {
+    zoom = value;
+    updateImage(imageFiles.length - parseInt(scrollbar.value));
+    }
+
+    // Initialize with the first image
+    updateImage(0);
+  </script>
+</body>
+</html>
+
+
