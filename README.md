@@ -12,7 +12,7 @@ Download or clone this repository to your local machine.
 Open a terminal or command prompt and navigate to the project directory.
 Start the Python web server by running the following command:
 ```
-python server.py
+python -m http.server 8000
 ```
 Open a web browser and navigate to http://localhost:8000/.
 You should now see the radiology image viewer application.
