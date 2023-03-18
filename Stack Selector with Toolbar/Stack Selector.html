@@ -51,6 +51,16 @@
       background-color: #2a99ff;
       border: none;
     }
+
+    #magnifier {
+      position: absolute;
+      display: none;
+      width: 140px;
+      height: 140px;
+      border: 1px solid black;
+      pointer-events: none;
+    }
+
   </style>
 </head>
 <body>
@@ -60,10 +70,12 @@
       <img id="brightnessContrastBtn" src="contrast-icon.png" alt="Brightness/Contrast">
       <img id="zoomBtn" src="zoom-icon.png" alt="Zoom">
       <img id="panBtn" src="pan-icon.png" alt="Pan">
+      <img id="magnifyBtn" src="magnify-icon.png" alt="Magnify">
       <img id="resetBtn" src="reset-icon.png" alt="Reset">
     </div>
     <canvas id="image" width="500" height="500"></canvas>
     <input id="scrollbar" type="range" min="1" max="10" value="1" orient="vertical">
+    <canvas id="magnifier" width="140" height="140"></canvas>
   </div>
 
   <script>
@@ -95,11 +107,15 @@
     const image = document.getElementById('image');
     const ctx = image.getContext('2d', { willReadFrequently: true });
     const scrollbar = document.getElementById('scrollbar');
+    const magnifier = document.getElementById('magnifier');
+    const magCtx = magnifier.getContext('2d');
+    let isThrottled = false;
+
     const brightnessContrastBtn = document.getElementById('brightnessContrastBtn');
     brightnessContrastBtn.addEventListener('click', () => {
     onButtonClick(brightnessContrastBtn);
-
     });
+
     const zoomBtn = document.getElementById('zoomBtn');
     zoomBtn.addEventListener('click', () => {
       onButtonClick(zoomBtn);
@@ -107,6 +123,10 @@
     const panBtn = document.getElementById('panBtn');
     panBtn.addEventListener('click', () => {
       onButtonClick(panBtn);
+    });
+    const magnifyBtn = document.getElementById('magnifyBtn');
+    magnifyBtn.addEventListener('click', () => {
+      onButtonClick(magnifyBtn);
     });
     const resetBtn = document.getElementById('resetBtn');
     resetBtn.addEventListener('click', () => {
@@ -200,6 +220,32 @@
   }
 }
 
+    function drawMagnifier(ctx, mouseX, mouseY) {
+      const magnifierSize = 50;
+      const magnification = 2;
+      const halfSize = magnifierSize / 2;
+
+      const left = mouseX - halfSize;
+      const top = mouseY - halfSize;
+      const right = mouseX + halfSize;
+      const bottom = mouseY + halfSize;
+
+      ctx.save();
+
+      ctx.beginPath();
+      ctx.rect(left, top, magnifierSize, magnifierSize);
+      ctx.clip();
+
+      ctx.translate(mouseX - halfSize / magnification, mouseY - halfSize / magnification);
+      ctx.scale(magnification, magnification);
+      updateImage(imageFiles.length - parseInt(scrollbar.value));
+
+      ctx.restore();
+
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(left, top, magnifierSize, magnifierSize);
+    }
 
 
     function drawIndicator(ctx, index, total) {
@@ -242,7 +288,25 @@
         panOffset.x -= deltaX;
         panOffset.y -= deltaY;
         updateImage(imageFiles.length - parseInt(scrollbar.value));
-      }
+      } else if (activeFunction === 'magnify') {
+          if (isThrottled) return;
+          isThrottled = true;
+          requestAnimationFrame(() => {
+            isThrottled = false;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 70;
+            tempCanvas.height = 70;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(image, event.clientX - 35, event.clientY - 35 - 100, 70, 70, 0, 0, 70, 70);
+            const magX = event.clientX - magnifier.width / 2;
+            const magY = event.clientY - magnifier.height / 2;
+            magnifier.style.left = `${magX}px`;
+            magnifier.style.top = `${magY}px`;
+            magCtx.clearRect(0, 0, magnifier.width, magnifier.height);
+            magnifier.style.display = 'block';
+            magCtx.drawImage(tempCanvas, 0, 0, 70, 70, 0, 0, magnifier.width, magnifier.height);
+          });
+        }
       start.x = event.clientX;
       start.y = event.clientY;
     }
@@ -250,8 +314,11 @@
 
 
 
-    function onMouseUp() {
+function onMouseUp() {
       mouseDown = false;
+      if (activeFunction === 'magnify') {
+        magnifier.style.display = 'none';
+      }
     }
 
     function onDragStart(event) {
@@ -278,6 +345,11 @@
       image.style.cursor = 'grab';
     }
 
+    function onMagnifyBtnClick() {
+      activeFunction = 'magnify';
+      image.style.cursor = 'zoom-in';
+    }
+
     function onResetBtnClick() {
       contrast = 100;
       brightness = 100;
@@ -297,6 +369,7 @@
     brightnessContrastBtn.addEventListener('click', onBrightnessContrastBtnClick);
     zoomBtn.addEventListener('click', onZoomBtnClick);
     panBtn.addEventListener('click', onPanBtnClick);
+    magnifyBtn.addEventListener('click', onMagnifyBtnClick);
 
     function updateContrast(value) {
       contrast = value;
