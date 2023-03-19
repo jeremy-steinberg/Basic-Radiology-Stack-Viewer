@@ -78,12 +78,12 @@
   <div id="container">
     <div id="stack-selector"></div>
     <div id="toolbar">
-      <img id="brightnessContrastBtn" src="contrast-icon.png" alt="Brightness/Contrast">
-      <img id="zoomBtn" src="zoom-icon.png" alt="Zoom">
-      <img id="panBtn" src="pan-icon.png" alt="Pan">
-      <img id="magnifyBtn" src="magnify-icon.png" alt="Magnify">
-      <img id="resetBtn" src="reset-icon.png" alt="Reset">
-      <img id="fullsizeBtn" src="fullsize-icon.png" alt="Fullsize">
+      <img id="brightnessContrastBtn" src="icons/contrast-icon.png" alt="Brightness/Contrast">
+      <img id="zoomBtn" src="icons/zoom-icon.png" alt="Zoom">
+      <img id="panBtn" src="icons/pan-icon.png" alt="Pan">
+      <img id="magnifyBtn" src="icons/magnify-icon.png" alt="Magnify">
+      <img id="resetBtn" src="icons/reset-icon.png" alt="Reset">
+      <img id="fullsizeBtn" src="icons/fullsize-icon.png" alt="Fullsize">
     </div>
     <canvas id="image" width="500" height="500"></canvas>
     <input id="scrollbar" type="range" min="1" max="10" value="1" orient="vertical">
@@ -473,6 +473,24 @@
     buttons.forEach((btn) => {
       btn.addEventListener('mouseenter', () => showTooltip(btn));
       btn.addEventListener('mouseleave', hideTooltip);
+    });
+
+    // Add these lines after the existing event listeners
+    image.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      onMouseDown(e.touches[0]);
+    });
+    image.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      onMouseMove(e.touches[0]);
+    });
+    image.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      onMouseUp();
+    });
+    image.addEventListener('touchcancel', (e) => {
+      e.preventDefault();
+      onMouseUp();
     });
 
 
