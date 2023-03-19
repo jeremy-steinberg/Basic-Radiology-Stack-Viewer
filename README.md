@@ -27,8 +27,8 @@ root_directory/
 ## Getting Started
 
 1. Clone or download this repository to your local machine.
-2. Organize your MRI image files into separate folders based on their orientation (e.g., Axial, Sagittal) within the root directory. Each folder should contain the respective image files for that orientation.
-3. Open your_html_file.html in your favorite code editor
+2. Within the Stack Selector folder, organize your MRI image files into separate folders based on their orientation (e.g., Axial, Sagittal) within the root directory. Each folder should contain the respective image files for that orientation.
+3. Open Stack Selector.html in your favorite code editor
 4. Update the stacks object in the JavaScript code to include the image file paths for each orientation. For example:
 
 ```
@@ -68,9 +68,6 @@ Adjust the brightness and contrast of the image using the "Brightness/Contrast" 
 Zoom in and out of the image using the "Zoom" button. Click and drag the mouse to zoom in and out. The focal point of the zoom will be where the initial mouse click was.
 Pan the image using the "Pan" button. Click and drag the mouse to pan the image.
 To reset the image to its original state, click the "Reset" button.
-
-## To Do
-Make mobile responsive.
 
 ## Customization
 
