@@ -1,6 +1,6 @@
 # Radiology Stack Scroller
 
-This is a simple web application for viewing a stack of radiology images. The html file is only around 10kb. The application allows the user to scroll through the images using a vertical scrollbar, and provides buttons for adjusting the brightness and contrast, zooming, and panning the images. The application is built using HTML, CSS, and JavaScript, and runs on a Python web server. Creating was assisted by ChatGPT. This was created because I couldn't find any non-DICOM radiology image viewers. The usage case would be for very lightweight applications where a DICOM server isn't required and you just want to scroll through simple radiology pictures.
+This is a simple web application for viewing a stack of radiology images. The html file is only around 10kb. The application allows the user to scroll through the images using a vertical scrollbar, select the stack, and provides buttons for adjusting the brightness and contrast, zooming, panning, and magnification of the images. The application is built using HTML, CSS, and JavaScript, and needs to run on a web server due to CORS limitations. This was created because I couldn't find any open source non-DICOM radiology image viewers. The usage case would be for very lightweight applications where a DICOM server isn't required and you just want to scroll through simple radiology pictures. Creation was assisted by ChatGPT-4. Creating the full app was outside its abilities, but it was very helpful in iterative design and hence this has been licensed as CC-Zero.
 
 ## Features
 
@@ -28,7 +28,7 @@ root_directory/
 
 1. Clone or download this repository to your local machine.
 2. Within the Stack Selector folder, organize your MRI image files into separate folders based on their orientation (e.g., Axial, Sagittal) within the root directory. Each folder should contain the respective image files for that orientation.
-3. Open Stack Selector.html in your favorite code editor
+3. Open Stack Scroller.html in your favorite code editor
 4. Update the stacks object in the JavaScript code to include the image file paths for each orientation. For example:
 
 ```
@@ -62,7 +62,7 @@ You should now see the radiology image viewer application.
 
 To use the application, follow these steps:
 
-Select a stack using the toolbar buttons on the top (Stack Selector Version)
+Select a stack using the toolbar buttons on the top
 Scroll through the image stack using the vertical scrollbar to the right of the canvas.
 Adjust the brightness and contrast of the image using the "Brightness/Contrast" button. Click and drag the mouse to adjust the brightness and contrast.
 Zoom in and out of the image using the "Zoom" button. Click and drag the mouse to zoom in and out. The focal point of the zoom will be where the initial mouse click was.
