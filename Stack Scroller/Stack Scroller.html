@@ -41,10 +41,13 @@
 
     #toolbar img, #stack-selector button {
       cursor: pointer;
-      height: 25px;
       margin: 0 10px;
-      padding: 5px;
+      padding: 8px 10px;
       border: none;
+    }
+
+    #toolbar img {
+      height: 20px;
     }
 
     #toolbar img:not(#resetBtn):not(#fullsizeBtn).active, #stack-selector button.active {
@@ -357,7 +360,7 @@
 
     function onBrightnessContrastBtnClick() {
     activeFunction = 'brightnessContrast';
-    image.style.cursor = 'crosshair';
+    image.style.cursor = 'cursor';
     }
 
     function onZoomBtnClick() {
@@ -382,6 +385,8 @@
       panOffset = { x: 0, y: 0 };
       focalPoint = { x: null, y: null };
       updateImage(imageFiles.length - parseInt(scrollbar.value));
+      image.style.cursor = 'default';
+      activeFunction = 'brightnessContrast';
     }
 
     function onFullsizeBtnClick() {
