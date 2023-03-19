@@ -47,7 +47,7 @@
       border: none;
     }
 
-    #toolbar img:not(#resetBtn).active, #stack-selector button.active {
+    #toolbar img:not(#resetBtn):not(#fullsizeBtn).active, #stack-selector button.active {
       background-color: #2a99ff;
       border: none;
     }
@@ -61,6 +61,17 @@
       pointer-events: none;
     }
 
+    #tooltip {
+      display: none;
+      position: absolute;
+      background-color: rgba(50, 50, 50, 0.8);
+      color: white;
+      padding: 4px 8px;
+      font-size: 14px;
+      white-space: nowrap;
+      border-radius: 4px;
+    }
+
   </style>
 </head>
 <body>
@@ -72,12 +83,13 @@
       <img id="panBtn" src="pan-icon.png" alt="Pan">
       <img id="magnifyBtn" src="magnify-icon.png" alt="Magnify">
       <img id="resetBtn" src="reset-icon.png" alt="Reset">
+      <img id="fullsizeBtn" src="fullsize-icon.png" alt="Fullsize">
     </div>
     <canvas id="image" width="500" height="500"></canvas>
     <input id="scrollbar" type="range" min="1" max="10" value="1" orient="vertical">
     <canvas id="magnifier" width="140" height="140"></canvas>
   </div>
-
+  <div id="tooltip"></div>
   <script>
     const stacks = {
       'Sagittal': [
@@ -115,7 +127,6 @@
     brightnessContrastBtn.addEventListener('click', () => {
     onButtonClick(brightnessContrastBtn);
     });
-
     const zoomBtn = document.getElementById('zoomBtn');
     zoomBtn.addEventListener('click', () => {
       onButtonClick(zoomBtn);
@@ -132,6 +143,11 @@
     resetBtn.addEventListener('click', () => {
       onButtonClick(resetBtn);
     });
+    const fullsizeBtn = document.getElementById('fullsizeBtn');
+    fullsizeBtn.addEventListener('click', () => {
+      onButtonClick(fullsizeBtn);
+    });
+
 
     const stackSelector = document.getElementById('stack-selector');
     Object.keys(stacks).forEach((stackName) => {
@@ -181,7 +197,9 @@
       // Update scrollbar and display the first image of the new stack
       scrollbar.max = imageFiles.length;
       scrollbar.value = 1;
+      
       updateImage(0);
+      onResetBtnClick();
     }
     
     // Initialize with the first stack
@@ -309,17 +327,24 @@
         }
       start.x = event.clientX;
       start.y = event.clientY;
-    }
-}
-
-
-
-function onMouseUp() {
-      mouseDown = false;
-      if (activeFunction === 'magnify') {
-        magnifier.style.display = 'none';
       }
     }
+
+    function openFullSize() {
+      window.open(imageFiles[imageFiles.length - parseInt(scrollbar.value)], '_blank');
+    }
+
+    function onMouseUp() {
+  mouseDown = false;
+  if (activeFunction === 'magnify') {
+    if (magnifyBtn.classList.contains('active')) {
+      magnifier.style.display = 'none';
+    } else {
+      activeFunction = null;
+    }
+  }
+}
+
 
     function onDragStart(event) {
       event.preventDefault();
@@ -359,6 +384,12 @@ function onMouseUp() {
       updateImage(imageFiles.length - parseInt(scrollbar.value));
     }
 
+    function onFullsizeBtnClick() {
+      activeFunction = 'Fullsize';
+      image.style.cursor = 'default';
+    }
+
+
     image.addEventListener('mousedown', onMouseDown);
     image.addEventListener('mousemove', onMouseMove);
     image.addEventListener('mouseup', onMouseUp);
@@ -370,6 +401,7 @@ function onMouseUp() {
     zoomBtn.addEventListener('click', onZoomBtnClick);
     panBtn.addEventListener('click', onPanBtnClick);
     magnifyBtn.addEventListener('click', onMagnifyBtnClick);
+    fullsizeBtn.addEventListener('click', openFullSize);
 
     function updateContrast(value) {
       contrast = value;
@@ -416,8 +448,32 @@ function onMouseUp() {
       updateScrollbarPosition();
     });
 
-    window.addEventListener('load', updateScrollbarPosition);
-    window.addEventListener('resize', updateScrollbarPosition);
+    const tooltip = document.getElementById('tooltip');
+
+    function showTooltip(button) {
+      if (stackSelector.contains(button)) {
+        return;
+      }
+      
+      tooltip.style.display = 'block';
+      tooltip.innerText = button.alt;
+      const buttonRect = button.getBoundingClientRect();
+      const tooltipWidth = tooltip.offsetWidth;
+      const tooltipHeight = tooltip.offsetHeight;
+      tooltip.style.left = `${buttonRect.left + (buttonRect.width / 2) - (tooltipWidth / 2)}px`;
+      tooltip.style.top = `${buttonRect.top + buttonRect.height + 10}px`; // Updated this line
+    }
+
+
+    function hideTooltip() {
+      tooltip.style.display = 'none';
+    }
+
+    const buttons = document.querySelectorAll('#toolbar img, #stack-selector button');
+    buttons.forEach((btn) => {
+      btn.addEventListener('mouseenter', () => showTooltip(btn));
+      btn.addEventListener('mouseleave', hideTooltip);
+    });
 
 
     // Initialize with the first image
