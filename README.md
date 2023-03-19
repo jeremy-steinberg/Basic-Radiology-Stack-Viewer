@@ -28,7 +28,7 @@ root_directory/
 
 1. Clone or download this repository to your local machine.
 2. Within the Stack Selector folder, organize your MRI image files into separate folders based on their orientation (e.g., Axial, Sagittal) within the root directory. Each folder should contain the respective image files for that orientation.
-3. Open Stack Selector.html in your favorite code editor
+3. Open Stack Scroller.html in your favorite code editor
 4. Update the stacks object in the JavaScript code to include the image file paths for each orientation. For example:
 
 ```
@@ -62,7 +62,7 @@ You should now see the radiology image viewer application.
 
 To use the application, follow these steps:
 
-Select a stack using the toolbar buttons on the top (Stack Selector Version)
+Select a stack using the toolbar buttons on the top
 Scroll through the image stack using the vertical scrollbar to the right of the canvas.
 Adjust the brightness and contrast of the image using the "Brightness/Contrast" button. Click and drag the mouse to adjust the brightness and contrast.
 Zoom in and out of the image using the "Zoom" button. Click and drag the mouse to zoom in and out. The focal point of the zoom will be where the initial mouse click was.
